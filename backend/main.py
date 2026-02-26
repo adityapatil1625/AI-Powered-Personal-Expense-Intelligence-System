@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from database import SessionLocal
 from schemas import TransactionCreate
 from crud import create_transaction, get_user_transactions, get_expense_insights
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
@@ -42,3 +43,11 @@ def expense_insights(user_id: str, db: Session = Depends(get_db)):
 @app.get("/insights/{user_id}")
 def expense_insights(user_id: str, db: Session = Depends(get_db)):
     return get_expense_insights(db, user_id)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
