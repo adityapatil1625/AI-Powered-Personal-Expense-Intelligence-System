@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from database import SessionLocal
 from schemas import TransactionCreate
-from crud import create_transaction, get_user_transactions
+from crud import create_transaction, get_user_transactions, get_expense_insights
 
 app = FastAPI()
 
@@ -33,3 +33,12 @@ def add_transaction(
 def fetch_transactions(user_id: str, db: Session = Depends(get_db)):
     transactions = get_user_transactions(db, user_id)
     return transactions
+
+@app.get("/insights/{user_id}")
+def expense_insights(user_id: str, db: Session = Depends(get_db)):
+    insights = get_expense_insights(db, user_id)
+    return insights
+
+@app.get("/insights/{user_id}")
+def expense_insights(user_id: str, db: Session = Depends(get_db)):
+    return get_expense_insights(db, user_id)

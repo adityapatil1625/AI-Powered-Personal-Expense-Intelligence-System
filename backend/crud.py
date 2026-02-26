@@ -1,4 +1,7 @@
 from models import Transaction
+from sqlalchemy import func
+from models import Transaction
+
 
 def create_transaction(db, transaction):
     new_transaction = Transaction(
@@ -19,3 +22,31 @@ def get_user_transactions(db, user_id: str):
     return db.query(Transaction)\
         .filter(Transaction.user_id == user_id)\
         .all()
+
+def get_expense_insights(db, user_id: str):
+
+    total_spent = db.query(
+        func.sum(Transaction.amount)
+    ).filter(
+        Transaction.user_id == user_id
+    ).scalar()
+
+    category_spending = db.query(
+        Transaction.category,
+        func.sum(Transaction.amount)
+    ).filter(
+        Transaction.user_id == user_id
+    ).group_by(
+        Transaction.category
+    ).all()
+
+    highest_category = max(
+        category_spending,
+        key=lambda x: x[1]
+    )[0] if category_spending else None
+
+    return {
+        "total_spent": total_spent,
+        "category_breakdown": dict(category_spending),
+        "highest_spending_category": highest_category
+    }
