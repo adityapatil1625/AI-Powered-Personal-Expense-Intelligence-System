@@ -1,10 +1,21 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Body
 from sqlalchemy.orm import Session
+from fastapi import Body
+from crud import (
+    create_transaction,
+    get_user_transactions,
+    get_expense_insights,
+    generate_chat_response,
+    set_budget  
+)
 
-from database import SessionLocal
+from database import SessionLocal, engine
 from schemas import TransactionCreate
 from crud import create_transaction, get_user_transactions, get_expense_insights
 from fastapi.middleware.cors import CORSMiddleware
+from models import Base
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -44,6 +55,16 @@ def expense_insights(user_id: str, db: Session = Depends(get_db)):
 def expense_insights(user_id: str, db: Session = Depends(get_db)):
     return get_expense_insights(db, user_id)
 
+@app.post("/learn-category")
+def learn(
+    merchant_name: str,
+    category: str,
+    db: Session = Depends(get_db)
+):
+    learn_category(db, merchant_name, category)
+
+    return {"message": "AI learned successfully"}
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -51,3 +72,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.post("/chat/{user_id}")
+def chat_with_ai(user_id: str, message: str = Body(...), db: Session = Depends(get_db)):
+
+    insights = get_expense_insights(db, user_id)
+
+    response = generate_chat_response(message, insights)
+
+    return {"response": response}
+
+
+@app.post("/budget/{user_id}")
+def create_budget(user_id: str, limit: float = Body(...), db: Session = Depends(get_db)):
+    return set_budget(db, user_id, limit)

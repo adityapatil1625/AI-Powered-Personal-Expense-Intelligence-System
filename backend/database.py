@@ -1,5 +1,6 @@
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, declarative_base
 
 DATABASE_URL = "postgresql://postgres.blnibaxszoicsinoehvs:CJjXxpOLvVPovldB@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
 
@@ -10,5 +11,5 @@ SessionLocal = sessionmaker(
     autoflush=False,
     bind=engine
 )
-print(DATABASE_URL)
-print("DATABASE URL USED:", DATABASE_URL)
+
+Base = declarative_base()   # ✅ THIS IS REQUIRED
