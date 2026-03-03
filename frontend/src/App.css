@@ -294,6 +294,44 @@
   fill: #2d3748;
 }
 
+/* ================= BREAKDOWN TABLE ================= */
+.breakdown-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.breakdown-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.breakdown-label {
+  font-size: 14px;
+  color: #2d3748;
+  font-weight: 500;
+  flex: 1;
+}
+
+.breakdown-value {
+  font-size: 14px;
+  color: #4a5568;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
 /* ================= AI ADVISOR ================= */
 .advisor-title {
   font-size: 18px;

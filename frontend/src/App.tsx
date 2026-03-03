@@ -38,6 +38,10 @@ spending_trend?: {
   date: string;
   amount: number;
 }[];
+anomalies?: {
+  date: string;
+  amount: number;
+}[];
 }
 
 const USER_ID = "550e8400-e29b-41d4-a716-446655440000";
@@ -308,16 +312,15 @@ function App() {
             <div className="card">
               <h3 className="chart-title">Spending Breakdown</h3>
               <div className="chart-wrapper">
-                <PieChart width={480} height={450}>
+                <PieChart width={450} height={400}>
                   <Pie
                     data={chartData}
                     dataKey="value"
                     nameKey="name"
                     cx="50%"
-                    cy="45%"
-                    outerRadius={110}
-                    label={(entry) => `₹${entry.value.toLocaleString("en-IN")}`}
-                    labelLine={{ stroke: "#CBD5E0", strokeWidth: 1 }}
+                    cy="50%"
+                    outerRadius={100}
+                    labelLine={false}
                   >
                     {chartData.map((_, index) => (
                       <Cell
@@ -347,14 +350,50 @@ function App() {
                       return [`₹${value.toLocaleString("en-IN")}`, "Amount"];
                     }}
                   />
-                  <Legend
-                    wrapperStyle={{
-                      paddingTop: "20px",
-                    }}
-                  />
                 </PieChart>
               </div>
+
+              {/* Breakdown Table */}
+              <div className="breakdown-table">
+                {chartData.map((item, index) => (
+                  <div key={index} className="breakdown-row">
+                    <div className="breakdown-color" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                    <span className="breakdown-label">{item.name}</span>
+                    <span className="breakdown-value">₹{item.value.toLocaleString("en-IN")}</span>
+                  </div>
+                ))}
+              </div>
             </div>
+
+            {/* Anomaly Card */}
+            {insights.anomalies && insights.anomalies.length > 0 && (
+              <div className="card" style={{ marginTop: "30px" }}>
+                <h3
+                  style={{
+                    fontSize: "18px",
+                    fontWeight: "700",
+                    marginBottom: "16px",
+                    color: "#fa709a",
+                  }}
+                >
+                  🚨 Unusual Spending Detected
+                </h3>
+
+                {insights.anomalies.map((a, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      padding: "10px",
+                      marginBottom: "10px",
+                      background: "rgba(250, 112, 154, 0.1)",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    {a.date} — ₹{a.amount.toLocaleString("en-IN")}
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Trend Chart */}
             {insights.spending_trend && (

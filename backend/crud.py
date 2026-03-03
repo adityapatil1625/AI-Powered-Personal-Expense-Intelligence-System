@@ -182,6 +182,9 @@ def get_expense_insights(db: Session, user_id: str):
     spending_trend = generate_spending_trend(transactions)
     insights["spending_trend"] = spending_trend
 
+    anomalies = detect_spending_anomalies(spending_trend)
+    insights["anomalies"] = anomalies
+
     return insights
 def generate_chat_response(message: str, insights: dict):
 
@@ -358,3 +361,24 @@ def generate_spending_trend(transactions):
         })
 
     return trend_data
+
+def detect_spending_anomalies(trend_data):
+    """
+    Detect days where spending is unusually high
+    (greater than 2x average daily spend)
+    """
+
+    amounts = [day["amount"] for day in trend_data if day["amount"] > 0]
+
+    if not amounts:
+        return []
+
+    avg = sum(amounts) / len(amounts)
+
+    anomalies = []
+
+    for day in trend_data:
+        if day["amount"] > avg * 2:
+            anomalies.append(day)
+
+    return anomalies
