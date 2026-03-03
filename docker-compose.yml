@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: expense_intelligence_db
+    environment:
+      POSTGRES_DB: expense_intelligence
+      POSTGRES_USER: expenseuser
+      POSTGRES_PASSWORD: securepassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U expenseuser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: expense_intelligence_backend
+    environment:
+      DATABASE_URL: postgresql://expenseuser:securepassword@db:5432/expense_intelligence
+      SECRET_KEY: ${SECRET_KEY:-change-this-to-a-secure-key}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 60
+      DEBUG: "False"
+      CORS_ORIGIN: http://localhost:5173
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "python -c 'from app.database.db import init_db; init_db()' &&
+             gunicorn -w 4 -b 0.0.0.0:8000 app.main:app"
+
+  # Optional: Frontend (uncomment if running in Docker)
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: expense_intelligence_frontend
+  #   ports:
+  #     - "5173:5173"
+  #   depends_on:
+  #     - backend
+  #   environment:
+  #     VITE_API_URL: http://localhost:8000
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: expense_intelligence_network

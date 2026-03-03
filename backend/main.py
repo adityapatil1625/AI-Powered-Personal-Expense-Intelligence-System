@@ -83,8 +83,12 @@ def add_transaction(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    transaction.user_id = current_user.id
-    create_transaction(db, transaction)
+    # Create transaction data with user_id
+    transaction_data = transaction.dict()
+    transaction_data['user_id'] = current_user.id
+    transaction_with_user = TransactionCreate(**transaction_data)
+    
+    create_transaction(db, transaction_with_user)
     return {"message": "Transaction added successfully"}
 
 @app.get("/transactions")

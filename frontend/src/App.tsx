@@ -146,16 +146,34 @@ function App() {
   const addExpense = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate form data
+    if (!expenseForm.amount || isNaN(parseFloat(expenseForm.amount))) {
+      alert("Please enter a valid amount.");
+      return;
+    }
+    if (!expenseForm.merchant_name.trim()) {
+      alert("Please enter a merchant name.");
+      return;
+    }
+    if (!expenseForm.transaction_date) {
+      alert("Please select a date.");
+      return;
+    }
+
     try {
+      const payload = {
+        amount: parseFloat(expenseForm.amount),
+        transaction_date: expenseForm.transaction_date,
+        merchant_name: expenseForm.merchant_name,
+        category: expenseForm.category,
+        payment_mode: expenseForm.payment_mode,
+      };
+
+      console.log("Sending transaction payload:", payload);
+
       await axios.post(
         "http://127.0.0.1:8000/transactions",
-        {
-          amount: parseFloat(expenseForm.amount),
-          transaction_date: expenseForm.transaction_date,
-          merchant_name: expenseForm.merchant_name,
-          category: expenseForm.category,
-          payment_mode: expenseForm.payment_mode,
-        },
+        payload,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -173,9 +191,14 @@ function App() {
       // Close modal and refresh insights
       setShowExpenseModal(false);
       fetchInsights();
-    } catch (error) {
+      alert("Expense added successfully!");
+    } catch (error: any) {
       console.error("Error adding expense:", error);
-      alert("Failed to add expense. Please try again.");
+      const errorDetail = error.response?.data?.detail || 
+                         (Array.isArray(error.response?.data) && error.response?.data[0]?.msg) ||
+                         error.message || 
+                         "Failed to add expense. Please try again.";
+      alert(`Error: ${errorDetail}`);
     }
   };
 

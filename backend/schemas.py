@@ -1,8 +1,9 @@
 from pydantic import BaseModel, EmailStr
 from datetime import date
+from typing import Optional
 
 class TransactionCreate(BaseModel):
-    user_id: str
+    user_id: Optional[str] = None
     amount: float
     transaction_date: date
     merchant_name: str
