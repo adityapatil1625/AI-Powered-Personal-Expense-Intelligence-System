@@ -185,6 +185,9 @@ def get_expense_insights(db: Session, user_id: str):
     anomalies = detect_spending_anomalies(spending_trend)
     insights["anomalies"] = anomalies
 
+    summary = generate_monthly_summary(insights)
+    insights["monthly_summary"] = summary
+
     return insights
 def generate_chat_response(message: str, insights: dict):
 
@@ -382,3 +385,48 @@ def detect_spending_anomalies(trend_data):
             anomalies.append(day)
 
     return anomalies
+
+def generate_monthly_summary(insights):
+    """
+    Generate AI-style financial summary paragraph
+    """
+
+    total = insights["total_spent"]
+    top_category = insights["highest_spending_category"]
+    predicted = insights["predicted_monthly_spend"]
+    health = insights["financial_health_score"]
+
+    category_breakdown = insights["category_breakdown"]
+
+    # Calculate top category percentage
+    top_amount = category_breakdown.get(top_category, 0)
+    percentage = (top_amount / total * 100) if total > 0 else 0
+
+    summary = (
+        f"This month you spent ₹{total:,.2f}. "
+        f"Your highest spending category is {top_category}, "
+        f"accounting for {percentage:.1f}% of total expenses. "
+        f"Based on current trends, you are projected to spend "
+        f"₹{predicted:,.2f} this month. "
+        f"Your financial health score stands at {health}/100."
+    )
+
+    # Add contextual insight
+    if health >= 80:
+        summary += " Overall, you are managing your finances very well."
+    elif health >= 60:
+        summary += " Your financial position is stable but can improve."
+    else:
+        summary += " Your spending patterns require attention."
+
+    if "subscriptions" in insights and insights["subscriptions"]:
+        summary += (
+            f" You have {len(insights['subscriptions'])} active recurring subscription(s)."
+        )
+
+    if "anomalies" in insights and insights["anomalies"]:
+        summary += (
+            f" Unusual spending was detected on {len(insights['anomalies'])} day(s)."
+        )
+
+    return summary

@@ -5,7 +5,6 @@ import {
   Pie,
   Cell,
   Tooltip,
-  Legend,
   LineChart,
   Line,
   XAxis,
@@ -42,9 +41,8 @@ anomalies?: {
   date: string;
   amount: number;
 }[];
+monthly_summary?: string;
 }
-
-const USER_ID = "550e8400-e29b-41d4-a716-446655440000";
 
 const COLORS = [
   "#5A67D8",  // Purple/Indigo
@@ -60,6 +58,10 @@ const COLORS = [
 ];
 
 function App() {
+  const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [authForm, setAuthForm] = useState({ email: "", password: "" });
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [insights, setInsights] = useState<Insights | null>(null);
   const [messages, setMessages] = useState<
     { role: "user" | "ai"; text: string }[]
@@ -74,31 +76,90 @@ function App() {
     transaction_date: new Date().toISOString().split("T")[0],
   });
 
+  // ================= AUTH FUNCTIONS =================
+  const handleAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsAuthLoading(true);
+    const endpoint = isRegistering ? "register" : "login";
+
+    try {
+      console.log(`Attempting ${endpoint} with:`, authForm.email);
+      const res = await axios.post(`http://127.0.0.1:8000/${endpoint}`, authForm);
+      console.log("Response:", res.data);
+
+      if (res.data.error) {
+        alert(res.data.error);
+        setIsAuthLoading(false);
+        return;
+      }
+
+      if (isRegistering) {
+        alert("Registration successful! Please log in.");
+        setIsRegistering(false);
+        setAuthForm({ email: "", password: "" });
+        setIsAuthLoading(false);
+      } else {
+        const accessToken = res.data.access_token;
+        localStorage.setItem("token", accessToken);
+        setToken(accessToken);
+        setIsAuthLoading(false);
+      }
+    } catch (error: any) {
+      console.error("Auth error:", error);
+      const errorMessage = error.response?.data?.detail || error.message || "Authentication failed";
+      alert(`Error: ${errorMessage}. Make sure the backend server is running.`);
+      setIsAuthLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    setInsights(null);
+    setMessages([]);
+  };
+
   // ================= FETCH INSIGHTS =================
   const fetchInsights = () => {
+    if (!token) return;
+
     axios
-      .get(`http://127.0.0.1:8000/insights/${USER_ID}`)
+      .get("http://127.0.0.1:8000/insights", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((res) => setInsights(res.data))
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error(err);
+        if (err.response?.status === 401) {
+          handleLogout();
+        }
+      });
   };
 
   useEffect(() => {
-    fetchInsights();
-  }, []);
+    if (token) {
+      fetchInsights();
+    }
+  }, [token]);
 
   // ================= ADD EXPENSE =================
   const addExpense = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      await axios.post("http://127.0.0.1:8000/transactions", {
-        user_id: USER_ID,
-        amount: parseFloat(expenseForm.amount),
-        transaction_date: expenseForm.transaction_date,
-        merchant_name: expenseForm.merchant_name,
-        category: expenseForm.category,
-        payment_mode: expenseForm.payment_mode,
-      });
+      await axios.post(
+        "http://127.0.0.1:8000/transactions",
+        {
+          amount: parseFloat(expenseForm.amount),
+          transaction_date: expenseForm.transaction_date,
+          merchant_name: expenseForm.merchant_name,
+          category: expenseForm.category,
+          payment_mode: expenseForm.payment_mode,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
       // Reset form
       setExpenseForm({
@@ -127,11 +188,12 @@ function App() {
 
     try {
       const res = await axios.post(
-        `http://127.0.0.1:8000/chat/${USER_ID}`,
+        "http://127.0.0.1:8000/chat",
         input,
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -148,6 +210,75 @@ function App() {
 
     setInput("");
   };
+
+  // ================= LOGIN/REGISTER UI =================
+  if (!token) {
+    return (
+      <div className="auth-container">
+        <div className="auth-card">
+          <h1 className="auth-title">
+            {isRegistering ? "Create Account" : "Welcome Back"}
+          </h1>
+          <p className="auth-subtitle">
+            {isRegistering
+              ? "Sign up to start tracking your expenses"
+              : "Sign in to access your financial insights"}
+          </p>
+
+          <form onSubmit={handleAuth} className="auth-form">
+            <div className="form-group">
+              <label className="form-label">Email</label>
+              <input
+                type="email"
+                className="form-input"
+                value={authForm.email}
+                onChange={(e) =>
+                  setAuthForm({ ...authForm, email: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <input
+                type="password"
+                className="form-input"
+                value={authForm.password}
+                onChange={(e) =>
+                  setAuthForm({ ...authForm, password: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <button 
+              type="submit" 
+              className="auth-submit-button"
+              disabled={isAuthLoading}
+            >
+              {isAuthLoading 
+                ? "Please wait..." 
+                : isRegistering ? "Sign Up" : "Sign In"}
+            </button>
+          </form>
+
+          <p className="auth-toggle">
+            {isRegistering ? "Already have an account?" : "Don't have an account?"}{" "}
+            <span
+              className="auth-toggle-link"
+              onClick={() => {
+                setIsRegistering(!isRegistering);
+                setAuthForm({ email: "", password: "" });
+              }}
+            >
+              {isRegistering ? "Sign In" : "Sign Up"}
+            </span>
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!insights)
     return (
@@ -188,14 +319,27 @@ function App() {
               <h1 className="app-title">Expense Intelligence</h1>
               <p className="app-subtitle">Financial insights powered by AI</p>
             </div>
-            <button
-              onClick={() => setShowExpenseModal(true)}
-              className="add-expense-button"
-            >
-              + Add Expense
-            </button>
+            <div className="flex-gap">
+              <button
+                onClick={() => setShowExpenseModal(true)}
+                className="add-expense-button"
+              >
+                + Add Expense
+              </button>
+              <button onClick={handleLogout} className="logout-button">
+                Logout
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* ================= SUMMARY CARD ================= */}
+        {insights.monthly_summary && (
+          <div className="card summary-card">
+            <h3 className="summary-card-title">🧠 AI Monthly Financial Report</h3>
+            <p className="summary-card-text">{insights.monthly_summary}</p>
+          </div>
+        )}
 
         {/* ================= TOP METRICS GRID ================= */}
         <div className="metrics-grid">
@@ -367,28 +511,13 @@ function App() {
 
             {/* Anomaly Card */}
             {insights.anomalies && insights.anomalies.length > 0 && (
-              <div className="card" style={{ marginTop: "30px" }}>
-                <h3
-                  style={{
-                    fontSize: "18px",
-                    fontWeight: "700",
-                    marginBottom: "16px",
-                    color: "#fa709a",
-                  }}
-                >
+              <div className="card mt-30">
+                <h3 className="anomaly-title">
                   🚨 Unusual Spending Detected
                 </h3>
 
                 {insights.anomalies.map((a, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      padding: "10px",
-                      marginBottom: "10px",
-                      background: "rgba(250, 112, 154, 0.1)",
-                      borderRadius: "8px",
-                    }}
-                  >
+                  <div key={index} className="anomaly-item">
                     {a.date} — ₹{a.amount.toLocaleString("en-IN")}
                   </div>
                 ))}
@@ -397,14 +526,8 @@ function App() {
 
             {/* Trend Chart */}
             {insights.spending_trend && (
-              <div className="card" style={{ marginTop: "30px" }}>
-                <h3
-                  style={{
-                    fontSize: "18px",
-                    fontWeight: "700",
-                    marginBottom: "16px",
-                  }}
-                >
+              <div className="card mt-30">
+                <h3 className="trend-title">
                   📈 30-Day Spending Trend
                 </h3>
 
@@ -452,28 +575,13 @@ function App() {
             {/* Subscription Card */}
             {insights.subscriptions && insights.subscriptions.length > 0 && (
               <div className="card mb-30">
-                <h3
-                  style={{
-                    fontSize: "20px",
-                    fontWeight: "700",
-                    marginBottom: "16px",
-                  }}
-                >
+                <h3 className="subscription-title">
                   🔁 Detected Subscriptions
                 </h3>
 
                 {insights.subscriptions.map((sub, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      padding: "12px",
-                      marginBottom: "12px",
-                      background: "rgba(102, 126, 234, 0.08)",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                    }}
-                  >
-                    <strong>{sub.merchant}</strong><br />
+                  <div key={index} className="subscription-item">
+                    <strong>{sub.merchant}</strong>
                     ₹{sub.amount.toLocaleString("en-IN")} / {sub.frequency}<br />
                     Next Billing: {sub.next_billing_date}<br />
                     Annual Cost: ₹{sub.annual_cost.toLocaleString("en-IN")}

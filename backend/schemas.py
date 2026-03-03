@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import date
 
 class TransactionCreate(BaseModel):
@@ -8,3 +8,11 @@ class TransactionCreate(BaseModel):
     merchant_name: str
     category: str
     payment_mode: str
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
