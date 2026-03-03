@@ -1,9 +1,10 @@
 from sqlalchemy.orm import Session
 from models import Transaction, Budget
 from schemas import TransactionCreate
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import defaultdict
 import uuid
+from math import fabs
 
 
 # =========================================
@@ -174,6 +175,13 @@ def get_expense_insights(db: Session, user_id: str):
                 "Food expenses are above 30%. Try meal planning to save money."
             )
 
+    subscriptions = detect_recurring_subscriptions(transactions)
+    insights["subscriptions"] = subscriptions
+
+    # --------- Spending Trend ----------
+    spending_trend = generate_spending_trend(transactions)
+    insights["spending_trend"] = spending_trend
+
     return insights
 def generate_chat_response(message: str, insights: dict):
 
@@ -273,3 +281,80 @@ def set_budget(db: Session, user_id: str, monthly_limit: float):
 
     db.commit()
     return {"message": "Budget saved successfully"}
+
+def detect_recurring_subscriptions(transactions):
+    """
+    Detect recurring subscriptions based on:
+    - Same merchant appears at least twice
+    - Transactions ~30 days apart
+    - Similar amount (+/- 10%)
+    """
+
+    merchant_map = defaultdict(list)
+
+    # Group transactions by merchant
+    for txn in transactions:
+        merchant_map[txn.merchant_name].append(txn)
+
+    subscriptions = []
+
+    for merchant, txns in merchant_map.items():
+        if len(txns) < 2:
+            continue
+
+        # Sort by date
+        txns.sort(key=lambda x: x.transaction_date)
+
+        for i in range(1, len(txns)):
+            prev = txns[i - 1]
+            curr = txns[i]
+
+            days_diff = (curr.transaction_date - prev.transaction_date).days
+
+            amount_diff = fabs(float(curr.amount) - float(prev.amount))
+            avg_amount = (float(curr.amount) + float(prev.amount)) / 2
+
+            if (
+                25 <= days_diff <= 35
+                and avg_amount > 0
+                and (amount_diff / avg_amount) <= 0.1
+            ):
+                next_billing_date = curr.transaction_date + timedelta(days=30)
+                annual_cost = float(curr.amount) * 12
+
+                subscriptions.append({
+                    "merchant": merchant,
+                    "amount": round(float(curr.amount), 2),
+                    "frequency": "Monthly",
+                    "next_billing_date": next_billing_date.isoformat(),
+                    "annual_cost": round(annual_cost, 2)
+                })
+                break  # avoid duplicates
+
+    return subscriptions
+
+
+def generate_spending_trend(transactions):
+    """
+    Generate last 30 days spending trend (daily totals)
+    """
+
+    today = datetime.now().date()
+    last_30_days = today - timedelta(days=30)
+
+    daily_totals = defaultdict(float)
+
+    for txn in transactions:
+        if txn.transaction_date >= last_30_days:
+            daily_totals[txn.transaction_date] += float(txn.amount)
+
+    trend_data = []
+
+    for i in range(31):
+        day = last_30_days + timedelta(days=i)
+        trend_data.append({
+            "date": day.isoformat(),
+            "amount": round(daily_totals.get(day, 0), 2)
+        })
+
+    return trend_data

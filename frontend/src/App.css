@@ -31,6 +31,73 @@
   border-color: #cbd5e0;
 }
 
+/* ================= UTILITY CLASSES ================= */
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-baseline {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.flex-gap {
+  display: flex;
+  gap: 10px;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.mb-0 {
+  margin-bottom: 0;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.mb-30 {
+  margin-bottom: 30px;
+}
+
+.mt-24 {
+  margin-top: 24px;
+}
+
+.score-suffix {
+  font-size: 16px;
+  color: #A0AEC0;
+}
+
+.health-score-good {
+  color: #48BB78;
+}
+
+.health-score-medium {
+  color: #ED8936;
+}
+
+.health-score-poor {
+  color: #F56565;
+}
+
+.budget-amount-dark {
+  color: #2D3748;
+}
+
+.budget-amount-over {
+  color: #F56565;
+}
+
+.budget-amount-good {
+  color: #48BB78;
+}
+
 /* ================= HEADER ================= */
 .app-header {
   margin-bottom: 48px;
@@ -203,19 +270,28 @@
 }
 
 /* ================= CHART SECTION ================= */
-.chart-container {
+.chart-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: visible;
+  padding: 10px;
 }
 
 .chart-title {
   font-size: 18px;
   font-weight: 600;
   color: #2d3748;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   text-align: center;
   letter-spacing: -0.01em;
+}
+
+/* Custom styling for recharts labels */
+.recharts-pie-label-text {
+  font-size: 12px;
+  font-weight: 600;
+  fill: #2d3748;
 }
 
 /* ================= AI ADVISOR ================= */
@@ -428,4 +504,190 @@ div::-webkit-scrollbar-thumb:hover {
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ================= ADD EXPENSE BUTTON ================= */
+.add-expense-button {
+  padding: 12px 24px;
+  border-radius: 6px;
+  border: none;
+  background: #5a67d8;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(90, 103, 216, 0.2);
+  font-family: inherit;
+}
+
+.add-expense-button:hover {
+  background: #4c51bf;
+  box-shadow: 0 4px 8px rgba(90, 103, 216, 0.3);
+  transform: translateY(-1px);
+}
+
+/* ================= MODAL ================= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #a0aec0;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background: #f7fafc;
+  color: #2d3748;
+}
+
+/* ================= FORM STYLES ================= */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #4a5568;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  outline: none;
+  font-family: inherit;
+  color: #2d3748;
+}
+
+.form-input:focus {
+  border-color: #5a67d8;
+  box-shadow: 0 0 0 3px rgba(90, 103, 216, 0.1);
+}
+
+.form-input::placeholder {
+  color: #cbd5e0;
+}
+
+.submit-button {
+  flex: 1;
+  padding: 12px 20px;
+  border-radius: 6px;
+  border: none;
+  background: #5a67d8;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(90, 103, 216, 0.2);
+  font-family: inherit;
+}
+
+.submit-button:hover {
+  background: #4c51bf;
+  box-shadow: 0 4px 8px rgba(90, 103, 216, 0.3);
+}
+
+.cancel-button {
+  flex: 1;
+  padding: 12px 20px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #4a5568;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.cancel-button:hover {
+  background: #f7fafc;
+  border-color: #cbd5e0;
+}
+
+/* ================= MODAL CARD STYLES ================= */
+.modal-card {
+  max-width: 500px;
+  margin: 0;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
 }
