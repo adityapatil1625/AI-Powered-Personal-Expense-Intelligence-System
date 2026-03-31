@@ -13,6 +13,8 @@ import {
 } from "recharts";
 import "./App.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
 interface Insights {
   total_spent: number;
   highest_spending_category: string;
@@ -84,7 +86,7 @@ function App() {
 
     try {
       console.log(`Attempting ${endpoint} with:`, authForm.email);
-      const res = await axios.post(`http://127.0.0.1:8000/${endpoint}`, authForm);
+      const res = await axios.post(`${API_BASE_URL}/auth/${endpoint}`, authForm);
       console.log("Response:", res.data);
 
       if (res.data.error) {
@@ -124,7 +126,7 @@ function App() {
     if (!token) return;
 
     axios
-      .get("http://127.0.0.1:8000/insights", {
+      .get(`${API_BASE_URL}/insights/`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setInsights(res.data))
@@ -172,7 +174,7 @@ function App() {
       console.log("Sending transaction payload:", payload);
 
       await axios.post(
-        "http://127.0.0.1:8000/transactions",
+        `${API_BASE_URL}/transactions/`,
         payload,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -211,7 +213,7 @@ function App() {
 
     try {
       const res = await axios.post(
-        "http://127.0.0.1:8000/chat",
+        `${API_BASE_URL}/chat/`,
         input,
         {
           headers: {

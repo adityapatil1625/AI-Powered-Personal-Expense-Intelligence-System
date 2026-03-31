@@ -11,7 +11,7 @@ class Settings:
     # Database
     DATABASE_URL: str = os.getenv(
         "DATABASE_URL",
-        "postgresql://postgres.blnibaxszoicsinoehvs:CJjXxpOLvVPovldB@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres"
+        "postgresql://expenseuser:securepassword@localhost:5432/expense_intelligence"
     )
 
     # JWT
@@ -23,13 +23,14 @@ class Settings:
 
     # API
     DEBUG: bool = os.getenv("DEBUG", "True").lower() == "true"
-    CORS_ORIGINS: list = [
-        os.getenv("CORS_ORIGIN", "http://localhost:5173")
+    _cors_raw = os.getenv("CORS_ORIGIN", "http://localhost:5173")
+    CORS_ORIGINS: list[str] = [
+        origin.strip() for origin in _cors_raw.split(",") if origin.strip()
     ]
 
     # App
     APP_NAME: str = "Expense Intelligence"
-    APP_version: str = "1.0.0"
+    APP_VERSION: str = "1.0.0"
 
 
 settings = Settings()

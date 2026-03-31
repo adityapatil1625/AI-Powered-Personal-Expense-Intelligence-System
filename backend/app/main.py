@@ -11,7 +11,7 @@ def create_app() -> FastAPI:
     """Create and configure FastAPI application."""
     app = FastAPI(
         title=settings.APP_NAME,
-        version=settings.APP_version,
+        version=settings.APP_VERSION,
         description="AI-powered expense tracking and insights API"
     )
 
@@ -22,6 +22,7 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
+        allow_origin_regex=r"^http://(localhost|127\.0\.0\.1):\d+$",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -32,7 +33,7 @@ def create_app() -> FastAPI:
     def health_check():
         return {
             "message": f"{settings.APP_NAME} is running",
-            "version": settings.APP_version
+            "version": settings.APP_VERSION
         }
 
     # Include API routers
