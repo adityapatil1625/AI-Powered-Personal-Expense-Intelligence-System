@@ -1,14 +1,10 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "env": "production",
-  "envPrefix": "VITE_",
-  "envs": {
-    "production": {
-      "VITE_API_URL": "@yourbackendurl"
-    },
-    "preview": {
-      "VITE_API_URL": "http://localhost:8000"
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
-  }
+  ]
 }
