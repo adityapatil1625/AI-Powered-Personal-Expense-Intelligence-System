@@ -22,10 +22,8 @@ services:
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: "60"
       
-      # These should be set in Render dashboard instead of here
-      # - key: DATABASE_URL
-      #   sync: false
-      # - key: SECRET_KEY
-      #   sync: false
-      # - key: CORS_ORIGIN
-      #   sync: false
+      # Critical: Set these in Render Dashboard (Settings -> Environment)
+      # DATABASE_URL from Supabase connection string
+      # SECRET_KEY set to a secure random value
+      # CORS_ORIGIN set to your Vercel frontend URL
+      # CORS_ORIGIN_REGEX for wildcard vercel.app domains

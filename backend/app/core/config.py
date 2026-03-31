@@ -27,6 +27,10 @@ class Settings:
     CORS_ORIGINS: list[str] = [
         origin.strip() for origin in _cors_raw.split(",") if origin.strip()
     ]
+    CORS_ORIGIN_REGEX: str = os.getenv(
+        "CORS_ORIGIN_REGEX",
+        r"^http://(localhost|127\.0\.0\.1):\d+$"
+    )
 
     # App
     APP_NAME: str = "Expense Intelligence"
