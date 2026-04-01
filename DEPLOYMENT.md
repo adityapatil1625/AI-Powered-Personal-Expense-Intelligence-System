@@ -29,7 +29,7 @@ Render settings:
 
 - Root directory: `backend`
 - Build command: `pip install -r requirements.txt`
-- Start command: `gunicorn app.main:app`
+- Start command: `gunicorn -k uvicorn.workers.UvicornWorker app.main:app`
 
 Required environment variables on Render:
 

@@ -5,7 +5,7 @@ services:
     rootDir: backend
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app.main:app
+    startCommand: gunicorn -k uvicorn.workers.UvicornWorker app.main:app
     healthCheckPath: /
     envVars:
       - key: PYTHON_VERSION
