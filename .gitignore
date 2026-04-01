@@ -31,6 +31,7 @@ env/
 *.db
 *.sqlite
 *.sqlite3
+backend/test_*.db
 
 # Environment variables
 .env
@@ -82,3 +83,10 @@ htmlcov/
 logs/
 * dist-ssr/
 *.local
+
+# Project-local runtime artifacts
+backend/.pytest_cache/
+backend/__pycache__/
+backend/venv/
+frontend/dist/
+frontend/node_modules/

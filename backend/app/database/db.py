@@ -10,7 +10,7 @@ def _get_connect_args(database_url: str) -> dict:
     """Use SSL for remote DBs while keeping local development simple."""
     local_hosts = ("@localhost", "@127.0.0.1", "@db:")
     if database_url.startswith("sqlite"):
-        return {}
+        return {"check_same_thread": False}
     if any(host in database_url for host in local_hosts):
         return {}
     return {"sslmode": "require"}
