@@ -46,3 +46,9 @@ class BudgetCreate(BaseModel):
     """Schema for creating/updating budget."""
 
     monthly_limit: float
+
+
+class ChatRequest(BaseModel):
+    """Schema for AI chat requests."""
+
+    message: str

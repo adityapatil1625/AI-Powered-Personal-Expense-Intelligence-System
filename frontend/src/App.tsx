@@ -13,7 +13,9 @@ import {
 } from "recharts";
 import "./App.css";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || "http://localhost:8000"
+).replace(/\/$/, "");
 
 interface Insights {
   total_spent: number;
@@ -214,7 +216,7 @@ function App() {
     try {
       const res = await axios.post(
         `${API_BASE_URL}/chat/`,
-        input,
+        { message: input },
         {
           headers: {
             "Content-Type": "application/json",

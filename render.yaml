@@ -1,29 +1,26 @@
-version: 3
 services:
   - type: web
+    runtime: python
     name: expense-intelligence-api
-    env: python
-    region: oregon  # Change to your preferred region
-    plan: free  # Upgrade to pro for better performance
-    
-    # Build
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn -w 4 -b 0.0.0.0:8000 --timeout 120 app.main:app
-    
-    # Root directory where the service lives
     rootDir: backend
-    
-    # Environment variables
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app.main:app
+    healthCheckPath: /
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.11
       - key: DEBUG
         value: "False"
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
       - key: ALGORITHM
-        value: "HS256"
+        value: HS256
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: "60"
-      
-      # Critical: Set these in Render Dashboard (Settings -> Environment)
-      # DATABASE_URL from Supabase connection string
-      # SECRET_KEY set to a secure random value
-      # CORS_ORIGIN set to your Vercel frontend URL
-      # CORS_ORIGIN_REGEX for wildcard vercel.app domains
+      - key: CORS_ORIGIN
+        sync: false
+      - key: CORS_ORIGIN_REGEX
+        value: ^https?://(localhost|127\\.0\\.0\\.1)(:\\d+)?$|^https://.*\\.vercel\\.app$

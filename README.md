@@ -47,14 +47,6 @@ npm run dev
 
 Frontend runs at: `http://localhost:5173`
 
-### Using Docker
-
-```bash
-docker-compose up -d
-```
-
-Starts PostgreSQL, FastAPI backend, and configures everything automatically.
-
 ## 🔌 API Endpoints
 
 All endpoints require JWT authentication (except register/login).
@@ -110,9 +102,8 @@ expense-intelligence/
 │   ├── run.py
 │   ├── requirements.txt
 │   ├── .env.example
-│   └── Dockerfile
+│   └── requirements.txt
 ├── frontend/
-├── docker-compose.yml
 └── README.md
 ```
 
@@ -141,7 +132,7 @@ expense-intelligence/
 
 **Backend**: FastAPI + SQLAlchemy + PostgreSQL + JWT  
 **Frontend**: React 19 + Vite + TypeScript + Recharts  
-**Deployment**: Docker, Docker Compose, AWS/Heroku/GCP ready  
+**Deployment**: AWS/Heroku/GCP ready  
 **Auth**: Argon2 password hashing + JWT tokens  
 **Validation**: Pydantic models
 
@@ -167,12 +158,6 @@ expense-intelligence/
 cd backend && python run.py
 ```
 
-### Docker (Recommended)
-```bash
-docker-compose up -d
-# Includes PostgreSQL + Backend + Health checks
-```
-
 ### Production (Gunicorn)
 ```bash
 pip install gunicorn
@@ -183,7 +168,7 @@ gunicorn -w 4 -b 0.0.0.0:8000 app.main:app
 - **Heroku**: `git push heroku main` (with Procfile)
 - **AWS EC2**: Install Python, use Nginx + Supervisor
 - **Google Cloud Run**: `gcloud run deploy ...`
-- **DigitalOcean**: Docker droplet with docker-compose
+- **DigitalOcean**: Standard droplet with Python/PostgreSQL
 
 **Deployment checklist**:
 - [ ] `SECRET_KEY` set to secure random value

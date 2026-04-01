@@ -29,7 +29,10 @@ class Settings:
     ]
     CORS_ORIGIN_REGEX: str = os.getenv(
         "CORS_ORIGIN_REGEX",
-        r"^http://(localhost|127\.0\.0\.1):\d+$"
+        (
+            r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"
+            r"|^https://.*\.vercel\.app$"
+        )
     )
 
     # App
