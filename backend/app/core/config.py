@@ -13,6 +13,14 @@ class Settings:
         "DATABASE_URL",
         "postgresql://expenseuser:securepassword@localhost:5432/expense_intelligence"
     )
+    INIT_DB_ON_STARTUP: bool = os.getenv(
+        "INIT_DB_ON_STARTUP",
+        "True"
+    ).lower() == "true"
+    DB_INIT_MAX_RETRIES: int = int(os.getenv("DB_INIT_MAX_RETRIES", "3"))
+    DB_INIT_RETRY_DELAY_SECONDS: float = float(
+        os.getenv("DB_INIT_RETRY_DELAY_SECONDS", "2")
+    )
 
     # JWT
     SECRET_KEY: str = os.getenv("SECRET_KEY", "change-this-in-production")

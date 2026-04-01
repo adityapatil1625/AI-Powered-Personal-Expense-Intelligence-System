@@ -35,6 +35,7 @@ Required environment variables on Render:
 
 ```env
 DATABASE_URL=<your-supabase-connection-string>
+INIT_DB_ON_STARTUP=False
 SECRET_KEY=<long-random-secret>
 DEBUG=False
 ALGORITHM=HS256

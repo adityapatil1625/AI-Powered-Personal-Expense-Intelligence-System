@@ -1,4 +1,5 @@
 """Database connection and session management."""
+import time
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from app.core.config import settings
@@ -41,4 +42,17 @@ def get_db() -> Session:
 
 def init_db() -> None:
     """Initialize database and create all tables."""
-    Base.metadata.create_all(bind=engine)
+    last_error = None
+
+    for attempt in range(1, settings.DB_INIT_MAX_RETRIES + 1):
+        try:
+            Base.metadata.create_all(bind=engine)
+            return
+        except Exception as exc:
+            last_error = exc
+            if attempt == settings.DB_INIT_MAX_RETRIES:
+                raise
+            time.sleep(settings.DB_INIT_RETRY_DELAY_SECONDS)
+
+    if last_error:
+        raise last_error

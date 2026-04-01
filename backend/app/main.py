@@ -1,10 +1,13 @@
 """FastAPI application factory and configuration."""
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.database.db import init_db
 from app.api import auth_routes, transaction_routes, insights_routes
 from app.api import budget_routes, ai_routes
+
+logger = logging.getLogger(__name__)
 
 
 def create_app() -> FastAPI:
@@ -14,9 +17,6 @@ def create_app() -> FastAPI:
         version=settings.APP_VERSION,
         description="AI-powered expense tracking and insights API"
     )
-
-    # Initialize database
-    init_db()
 
     # Add CORS middleware
     app.add_middleware(
@@ -35,6 +35,14 @@ def create_app() -> FastAPI:
             "message": f"{settings.APP_NAME} is running",
             "version": settings.APP_VERSION
         }
+
+    @app.on_event("startup")
+    def startup_event() -> None:
+        """Initialize database on startup when enabled."""
+        if not settings.INIT_DB_ON_STARTUP:
+            logger.info("Skipping database initialization on startup.")
+            return
+        init_db()
 
     # Include API routers
     app.include_router(auth_routes.router)
