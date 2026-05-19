@@ -65,6 +65,7 @@ function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
   const [isRegistering, setIsRegistering] = useState(false);
   const [authForm, setAuthForm] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(false);
   const [insights, setInsights] = useState<Insights | null>(null);
   const [messages, setMessages] = useState<
@@ -240,68 +241,125 @@ function App() {
 
   // ================= LOGIN/REGISTER UI =================
   if (!token) {
+    const authModeClass = isRegistering ? "auth-card-register" : "auth-card-login";
+    const authModeLabel = isRegistering ? "New User Setup" : "Returning User";
+
     return (
       <div className="auth-container">
-        <div className="auth-card">
-          <h1 className="auth-title">
-            {isRegistering ? "Create Account" : "Welcome Back"}
-          </h1>
-          <p className="auth-subtitle">
-            {isRegistering
-              ? "Sign up to start tracking your expenses"
-              : "Sign in to access your financial insights"}
-          </p>
+        <div className="auth-shell">
+          <section className="auth-showcase">
+            <p className="auth-showcase-kicker">Expense Intelligence</p>
+            <h2 className="auth-showcase-title">Your money story, made clear.</h2>
+            <p className="auth-showcase-text">
+              Track spending patterns, detect anomalies, and ask AI questions in one place.
+            </p>
 
-          <form onSubmit={handleAuth} className="auth-form">
-            <div className="form-group">
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-input"
-                value={authForm.email}
-                onChange={(e) =>
-                  setAuthForm({ ...authForm, email: e.target.value })
-                }
-                required
-              />
+            <div className="auth-feature-list">
+              <div className="auth-feature-item">Smart monthly forecasts and budget alerts</div>
+              <div className="auth-feature-item">AI assistant for spending and savings decisions</div>
+              <div className="auth-feature-item">Subscription and anomaly detection from real data</div>
+            </div>
+          </section>
+
+          <div className={`auth-card ${authModeClass}`}>
+            <div className="auth-mode-pill">{authModeLabel}</div>
+
+            <div className="auth-mode-switch" role="tablist" aria-label="Authentication mode">
+              <button
+                type="button"
+                className={`auth-mode-button ${!isRegistering ? "active" : ""}`}
+                onClick={() => {
+                  setIsRegistering(false);
+                  setAuthForm({ email: "", password: "" });
+                  setShowPassword(false);
+                }}
+              >
+                Sign In
+              </button>
+              <button
+                type="button"
+                className={`auth-mode-button ${isRegistering ? "active" : ""}`}
+                onClick={() => {
+                  setIsRegistering(true);
+                  setAuthForm({ email: "", password: "" });
+                  setShowPassword(false);
+                }}
+              >
+                Sign Up
+              </button>
             </div>
 
-            <div className="form-group">
-              <label className="form-label">Password</label>
-              <input
-                type="password"
-                className="form-input"
-                value={authForm.password}
-                onChange={(e) =>
-                  setAuthForm({ ...authForm, password: e.target.value })
-                }
-                required
-              />
-            </div>
+            <h1 className="auth-title">
+              {isRegistering ? "Create Account" : "Welcome Back"}
+            </h1>
+            <p className="auth-subtitle">
+              {isRegistering
+                ? "Create your account and start getting AI-powered finance insights"
+                : "Sign in to continue to your dashboard"}
+            </p>
 
-            <button 
-              type="submit" 
-              className="auth-submit-button"
-              disabled={isAuthLoading}
-            >
-              {isAuthLoading 
-                ? "Please wait..." 
-                : isRegistering ? "Sign Up" : "Sign In"}
-            </button>
-          </form>
+            <form onSubmit={handleAuth} className="auth-form">
+              <div className="form-group">
+                <label className="form-label">Email</label>
+                <input
+                  type="email"
+                  className="form-input"
+                  value={authForm.email}
+                  onChange={(e) =>
+                    setAuthForm({ ...authForm, email: e.target.value })
+                  }
+                  required
+                />
+              </div>
 
-          <p className="auth-toggle">
-            {isRegistering ? "Already have an account?" : "Don't have an account?"}{" "}
-            <span
-              className="auth-toggle-link"
-              onClick={() => {
-                setIsRegistering(!isRegistering);
-                setAuthForm({ email: "", password: "" });
-              }}
-            >
-              {isRegistering ? "Sign In" : "Sign Up"}
-            </span>
-          </p>
+              <div className="form-group">
+                <label className="form-label">Password</label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className="form-input"
+                    value={authForm.password}
+                    onChange={(e) =>
+                      setAuthForm({ ...authForm, password: e.target.value })
+                    }
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="auth-submit-button"
+                disabled={isAuthLoading}
+              >
+                {isAuthLoading
+                  ? "Please wait..."
+                  : isRegistering ? "Create Account" : "Sign In"}
+              </button>
+            </form>
+
+            <p className="auth-toggle">
+              {isRegistering ? "Already have an account?" : "Need an account?"}{" "}
+              <span
+                className="auth-toggle-link"
+                onClick={() => {
+                  setIsRegistering(!isRegistering);
+                  setAuthForm({ email: "", password: "" });
+                  setShowPassword(false);
+                }}
+              >
+                {isRegistering ? "Switch to Sign In" : "Switch to Sign Up"}
+              </span>
+            </p>
+          </div>
         </div>
       </div>
     );

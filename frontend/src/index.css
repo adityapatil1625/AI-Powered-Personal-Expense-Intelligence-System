@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap");
+
 * {
   margin: 0;
   padding: 0;
@@ -5,7 +7,7 @@
 }
 
 :root {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Manrope", "Segoe UI", sans-serif;
   line-height: 1.5;
   font-weight: 400;
   font-synthesis: none;
@@ -19,5 +21,7 @@ body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
+  color: #1f2f2c;
+  background: linear-gradient(140deg, #f8f2e7 0%, #f2ebdf 46%, #eaf3f1 100%);
 }
 
